@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Registrar Actividad - GESPARVU{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 700px;">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-journal-plus me-2"></i>Registro de Observación / Novedad</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" action="">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="parvuloSelect" class="form-label font-weight-bold">Seleccionar Párvulo</label>
+                    <select class="form-select" id="parvuloSelect" name="parvulo" required>
+                        <option value="" selected disabled>Seleccionar de la lista...</option>
+                        {% for alumno in parvulos %}
+                        <option value="{{ alumno.id }}">{{ alumno.nombre }} {{ alumno.apellido }} ({{ alumno.nivel.nombre }})</option>
+                        {% empty %}
+                        <option value="" disabled>No hay párvulos disponibles</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="tipoCategoria" class="form-label font-weight-bold">Categoría</label>
+                    <select class="form-select" id="tipoCategoria" name="categoria" required>
+                        <option value="alimentacion">Alimentación</option>
+                        <option value="sueno">Sueño / Descanso</option>
+                        <option value="conducta">Conducta / Pedagogía</option>
+                        <option value="salud">Salud / Incidencia</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="observaciones" class="form-label font-weight-bold">Detalle de la Observación</label>
+                    <textarea class="form-control" id="observaciones" name="observaciones" rows="4" placeholder="Escriba los detalles aquí..." required></textarea>
+                </div>
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{% url 'docente:dashboard' %}" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Guardar Registro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

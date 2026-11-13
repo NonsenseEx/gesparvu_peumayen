@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Panel Docente - GESPARVU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="bi bi-journal-bookmark text-primary me-2"></i>Gestión de Sala</h2>
+            <p class="text-muted mb-0">
+                {{ sala_actual.nombre|default:"Nivel Asignado" }} - Educadora: {{ request.user.get_full_name|default:request.user.username }}
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'docente:registrar_actividad' %}" class="btn btn-success">
+                <i class="bi bi-plus-lg me-1"></i> Nueva Novedad
+            </a>
+        </div>
+    </div>
+
+    <!-- Chat compartido con administración y recepción -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-7">
+            {% include "notificaciones/_chat.html" %}
+        </div>
+        <div class="col-lg-5">
+            <div class="card shadow-sm h-100">
+                <div class="card-body d-flex flex-column justify-content-center">
+                    <h5 class="fw-bold"><i class="bi bi-bell me-2 text-warning"></i>Mensajes del Equipo</h5>
+                    <p class="text-muted mb-0">
+                        Aquí recibes avisos de administración y de recepción, incluyendo los retiros informados
+                        por el apoderado. Puedes responder en el mismo chat.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-body border-0 pt-3">
+            <h5 class="fw-bold mb-0">Control de Asistencia y Bitácora</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Párvulo</th>
+                            <th>Rut</th>
+                            <th>Estado</th>
+                            <th>Alimentación</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Bucle para recorrer los párvulos desde la base de datos -->
+                        {% for alumno in parvulos_sala %}
+                        <tr>
+                            <td>
+                                <i class="bi bi-person-fill text-secondary me-2"></i>{{ alumno.nombre }} {{ alumno.apellido }}
+                            </td>
+                            <td>{{ alumno.rut }}</td>
+                            <td>
+                                {% if alumno.presente %}
+                                    <span class="badge bg-success">Presente</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Ausente</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if alumno.alimentacion_completa %}
+                                    <span class="badge bg-info text-dark">100% Consumido</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Sin registrar / Parcial</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'docente:registrar_actividad' %}" class="btn btn-sm btn-outline-primary me-1">
+                                    <i class="bi bi-pencil-square"></i> Registrar
+                                </a>
+                                <a href="#" class="btn btn-sm btn-outline-warning">
+                                    <i class="bi bi-bell"></i> Avisar
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox fs-4 d-block mb-2"></i>
+                                No hay párvulos asignados a esta sala actualmente.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Ficha de Párvulo - GESPARVU{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3><i class="bi bi-file-person text-primary me-2"></i>Ficha Técnica del Párvulo</h3>
+        <a href="#" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Volver</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="fw-bold text-primary mb-3">Información Personal</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <label class="form-label text-muted">Nombre Completo</label>
+                    <input type="text" class="form-control" value="Mateo Morales Barahona" readonly>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-muted">RUT</label>
+                    <input type="text" class="form-control" value="25.432.109-8" readonly>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-muted">Fecha de Nacimiento</label>
+                    <input type="text" class="form-control" value="15/05/2023" readonly>
+                </div>
+            </div>
+
+            <h5 class="fw-bold text-danger mb-3">Información Salud / Médica</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label text-muted">Alergias Conocidas</label>
+                    <textarea class="form-control" rows="2" readonly>Alergia a la Proteína de la Leche de Vaca (APLV)</textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label text-muted">Medicamentos Autorizados</label>
+                    <textarea class="form-control" rows="2" readonly>Ninguno administrado sin aviso telefónico previo.</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

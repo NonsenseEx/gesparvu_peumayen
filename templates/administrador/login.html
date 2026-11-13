@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Iniciar Sesión - GESPARVU Peumayén{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 75vh;">
+    <div class="card shadow-lg p-4 style-card" style="width: 100%; max-width: 420px; border-radius: 12px;">
+        <div class="card-body">
+            <div class="text-center mb-4">
+                <i class="bi bi-journal-check text-primary" style="font-size: 3rem;"></i>
+                <h3 class="fw-bold mt-2">Bienvenido</h3>
+                <p class="text-muted small">Ingresa tus credenciales para acceder a la plataforma</p>
+            </div>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-danger alert-dismissible fade show py-2 small" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i> {{ message }}
+                        <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <form method="post" action="">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="username" class="form-label font-weight-bold">RUN</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person-vcard"></i></span>
+                        <input type="text" class="form-control" id="username" name="username" placeholder="Ej: 12345678-9" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label font-weight-bold">Contraseña</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" required>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="rememberMe" name="remember_me" value="1">
+                        <label class="form-check-label small" for="rememberMe">Recordarme</label>
+                    </div>
+                    <a href="#" class="small text-decoration-none">¿Olvidaste tu clave?</a>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 py-2">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión
+                </button>
+            </form>
+
+            <div class="text-center my-3">
+                <span class="text-muted small">¿No tienes cuenta?</span>
+            </div>
+            <a href="{% url 'administrador:registro' %}" class="btn btn-outline-primary w-100">
+                <i class="bi bi-person-plus me-2"></i>Crear cuenta
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

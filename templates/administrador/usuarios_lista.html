@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Usuarios - GESPARVU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <div>
+            <h2 class="mb-1"><i class="bi bi-people-fill text-primary me-2"></i>Gestión de Usuarios</h2>
+            <p class="text-muted mb-0">Administra apoderados, docentes y personal de recepción.</p>
+        </div>
+        <a href="{% url 'administrador:usuario_crear' %}" class="btn btn-primary">
+            <i class="bi bi-person-plus me-2"></i>Nuevo usuario
+        </a>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-lg-4">
+                    <label for="q" class="form-label fw-bold">Buscar</label>
+                    <input type="text" name="q" id="q" value="{{ busqueda }}"
+                           class="form-control" placeholder="Nombre, RUN, correo o usuario">
+                </div>
+                <div class="col-lg-3">
+                    <label for="rol" class="form-label fw-bold">Rol</label>
+                    <select name="rol" id="rol" class="form-select">
+                        <option value="">Todos los roles</option>
+                        {% for valor, etiqueta in roles_disponibles %}
+                            <option value="{{ valor }}" {% if rol_seleccionado == valor %}selected{% endif %}>{{ etiqueta }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-lg-3">
+                    <label for="estado" class="form-label fw-bold">Estado</label>
+                    <select name="estado" id="estado" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="activos" {% if estado_seleccionado == 'activos' %}selected{% endif %}>Activos</option>
+                        <option value="inactivos" {% if estado_seleccionado == 'inactivos' %}selected{% endif %}>Inactivos</option>
+                    </select>
+                </div>
+                <div class="col-lg-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-outline-primary flex-grow-1">
+                        <i class="bi bi-search me-1"></i>Filtrar
+                    </button>
+                    <a href="{% url 'administrador:usuarios' %}" class="btn btn-outline-secondary" title="Limpiar filtros">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-body border-0 pt-3 d-flex justify-content-between align-items-center">
+            <h5 class="card-title fw-bold mb-0">Usuarios registrados</h5>
+            <span class="badge bg-secondary">{{ total_usuarios }} resultado{{ total_usuarios|pluralize:"s" }}</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nombre</th>
+                            <th>RUN</th>
+                            <th>Rol</th>
+                            <th>Correo</th>
+                            <th>Teléfono</th>
+                            <th>Estado</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for usuario in usuarios %}
+                            <tr>
+                                <td>
+                                    <div class="fw-bold">{{ usuario.get_full_name|default:usuario.username }}</div>
+                                </td>
+                                <td>{{ usuario.rut }}</td>
+                                <td>
+                                    {% if usuario.rol == 'APODERADO' %}
+                                        <span class="badge bg-info text-dark">{{ usuario.get_rol_display }}</span>
+                                    {% elif usuario.rol == 'DOCENTE' %}
+                                        <span class="badge bg-primary">{{ usuario.get_rol_display }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ usuario.get_rol_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ usuario.email|default:"—" }}</td>
+                                <td>{{ usuario.telefono|default:"—" }}</td>
+                                <td>
+                                    {% if usuario.is_active %}
+                                        <span class="badge bg-success">Activo</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inactivo</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-1">
+                                        <a href="{% url 'administrador:usuario_editar' usuario.pk %}"
+                                           class="btn btn-sm btn-outline-primary" title="Editar">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        {% if usuario.is_active %}
+                                            <form method="post"
+                                                  action="{% url 'administrador:usuario_desactivar' usuario.pk %}"
+                                                  onsubmit="return confirm('¿Desactivar la cuenta de {{ usuario.get_full_name|escapejs }}? El historial se conservará.');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Desactivar">
+                                                    <i class="bi bi-person-slash"></i>
+                                                </button>
+                                            </form>
+                                        {% else %}
+                                            <form method="post"
+                                                  action="{% url 'administrador:usuario_activar' usuario.pk %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-success" title="Reactivar">
+                                                    <i class="bi bi-person-check"></i>
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    No se encontraron usuarios con los filtros seleccionados.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
