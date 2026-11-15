@@ -1,0 +1,30 @@
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Base de datos local
+*.sqlite3
+
+# Archivos de configuración y secretos
+.env
+
+# Archivos estáticos y de media (firmas, fotos)
+media/
+staticfiles/
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Archivos de configuración y secretos
+.env

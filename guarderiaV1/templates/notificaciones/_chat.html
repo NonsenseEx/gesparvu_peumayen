@@ -1,0 +1,114 @@
+<div class="card shadow-sm h-100" id="chat-docente">
+    <div class="card-header bg-body border-0 pt-3 d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold mb-0"><i class="bi bi-chat-dots me-2 text-primary"></i>Chat con Docente</h5>
+        <span id="chatEstado" class="small text-muted">Conectando...</span>
+    </div>
+    <div class="card-body p-0">
+        <div id="chatMensajes" class="p-3" style="height: 320px; overflow-y: auto; background: var(--bs-tertiary-bg);">
+            <p id="chatVacio" class="text-center text-muted my-5">
+                <i class="bi bi-chat-square-text fs-3 d-block mb-2"></i>
+                Aún no hay mensajes. Escribe el primero.
+            </p>
+        </div>
+    </div>
+    <div class="card-footer bg-body border-0">
+        <form id="chatForm" class="d-flex gap-2" autocomplete="off">
+            <input type="text" id="chatInput" class="form-control"
+                   placeholder="Escribe un mensaje para el docente..." maxlength="1000">
+            <button type="submit" class="btn btn-primary px-3">
+                <i class="bi bi-send-fill"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+(function () {
+    const protocolo = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const url = protocolo + '://' + window.location.host + '/ws/chat/docente/';
+    const contenedor = document.getElementById('chatMensajes');
+    const vacio = document.getElementById('chatVacio');
+    const formulario = document.getElementById('chatForm');
+    const input = document.getElementById('chatInput');
+    const estado = document.getElementById('chatEstado');
+    let socket = null;
+    let temporizador = null;
+
+    function crearMensaje(data) {
+        if (vacio) {
+            vacio.remove();
+        }
+
+        const fila = document.createElement('div');
+        fila.className = 'd-flex mb-2 ' + (data.propio ? 'justify-content-end' : 'justify-content-start');
+
+        const burbuja = document.createElement('div');
+        burbuja.className = 'p-2 px-3 rounded shadow-sm ' +
+            (data.propio ? 'bg-primary text-white' : 'bg-body border');
+
+        const autor = document.createElement('div');
+        autor.className = 'small fw-bold ' + (data.propio ? 'text-white-50' : 'text-secondary');
+        autor.textContent = data.autor + ' · ' + data.rol;
+
+        const cuerpo = document.createElement('div');
+        cuerpo.textContent = data.contenido;
+
+        const hora = document.createElement('div');
+        hora.className = 'small text-end ' + (data.propio ? 'text-white-50' : 'text-muted');
+        hora.textContent = data.fecha_hora;
+
+        burbuja.appendChild(autor);
+        burbuja.appendChild(cuerpo);
+        burbuja.appendChild(hora);
+        fila.appendChild(burbuja);
+        contenedor.appendChild(fila);
+        contenedor.scrollTop = contenedor.scrollHeight;
+    }
+
+    function conectar() {
+        socket = new WebSocket(url);
+
+        socket.onopen = function () {
+            estado.textContent = 'En línea';
+            estado.className = 'small text-success';
+        };
+
+        socket.onmessage = function (evento) {
+            try {
+                crearMensaje(JSON.parse(evento.data));
+            } catch (e) {
+                console.error('Mensaje inválido', e);
+            }
+        };
+
+        socket.onclose = function () {
+            estado.textContent = 'Desconectado. Reintentando...';
+            estado.className = 'small text-danger';
+            clearTimeout(temporizador);
+            temporizador = setTimeout(conectar, 3000);
+        };
+
+        socket.onerror = function () {
+            socket.close();
+        };
+    }
+
+    formulario.addEventListener('submit', function (evento) {
+        evento.preventDefault();
+        const texto = input.value.trim();
+        if (!texto) {
+            return;
+        }
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({ mensaje: texto }));
+            input.value = '';
+            input.focus();
+        } else {
+            estado.textContent = 'Sin conexión. Espera un momento...';
+            estado.className = 'small text-danger';
+        }
+    });
+
+    conectar();
+})();
+</script>

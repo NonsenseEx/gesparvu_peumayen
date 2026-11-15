@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Sala de actividades (imagen referencial)">
+  <rect width="800" height="600" fill="#e7f1ff"/>
+  <rect x="60" y="120" width="300" height="220" rx="16" fill="#0d6efd" opacity="0.85"/>
+  <rect x="440" y="120" width="300" height="220" rx="16" fill="#5fa8ff" opacity="0.85"/>
+  <rect x="60" y="370" width="680" height="120" rx="16" fill="#bcd8ff"/>
+  <text x="400" y="560" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="700" fill="#0a4bb5">Sala de actividades</text>
+  <text x="400" y="300" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="26" fill="#ffffff">Imagen referencial</text>
+</svg>

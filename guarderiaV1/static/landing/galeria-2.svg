@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Patio de juegos (imagen referencial)">
+  <rect width="800" height="600" fill="#eafaf0"/>
+  <circle cx="230" cy="250" r="110" fill="#20c997" opacity="0.85"/>
+  <rect x="430" y="150" width="290" height="210" rx="16" fill="#7ee2bd"/>
+  <rect x="60" y="400" width="680" height="90" rx="16" fill="#c9f2dd"/>
+  <text x="400" y="560" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="700" fill="#0f7a5a">Patio de juegos</text>
+  <text x="400" y="300" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="26" fill="#ffffff">Imagen referencial</text>
+</svg>

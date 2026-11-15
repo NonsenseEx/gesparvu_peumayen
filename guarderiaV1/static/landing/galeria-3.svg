@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Comedor y alimentación (imagen referencial)">
+  <rect width="800" height="600" fill="#fff4e6"/>
+  <rect x="80" y="140" width="640" height="80" rx="40" fill="#fd7e14" opacity="0.85"/>
+  <rect x="120" y="260" width="180" height="180" rx="16" fill="#ffc48a"/>
+  <rect x="310" y="260" width="180" height="180" rx="16" fill="#ffd8b0"/>
+  <rect x="500" y="260" width="180" height="180" rx="16" fill="#ffc48a"/>
+  <text x="400" y="560" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="700" fill="#a34d00">Comedor y alimentación</text>
+  <text x="400" y="400" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="24" fill="#8a4400">Imagen referencial</text>
+</svg>
