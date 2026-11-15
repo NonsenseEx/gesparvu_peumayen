@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}{% if modo == 'crear' %}Nuevo Párvulo{% else %}Editar Ficha{% endif %} - GESPARVU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <div>
+            <h2 class="mb-1">
+                <i class="bi bi-person-{% if modo == 'crear' %}plus{% else %}gear{% endif %} text-primary me-2"></i>
+                {% if modo == 'crear' %}Nuevo Párvulo{% else %}Editar Ficha del Párvulo{% endif %}
+            </h2>
+            <p class="text-muted mb-0">
+                {% if modo == 'crear' %}
+                    Registra los datos personales, de salud y el contacto de emergencia.
+                {% else %}
+                    Actualiza la ficha de {{ parvulo.nombre }} {{ parvulo.apellido }}.
+                {% endif %}
+            </p>
+        </div>
+        <a href="{% url 'administrador:parvulos' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Volver al listado
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger py-2" role="alert">
+                    {% for error in form.non_field_errors %}
+                        <div><i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+
+                <h5 class="fw-bold mb-3"><i class="bi bi-person-vcard text-primary me-2"></i>Datos personales</h5>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label for="{{ form.rut.id_for_label }}" class="form-label fw-bold">{{ form.rut.label }}</label>
+                        {{ form.rut }}
+                        {% for error in form.rut.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-3">
+                        <label for="{{ form.nombre.id_for_label }}" class="form-label fw-bold">{{ form.nombre.label }}</label>
+                        {{ form.nombre }}
+                        {% for error in form.nombre.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-3">
+                        <label for="{{ form.apellido.id_for_label }}" class="form-label fw-bold">{{ form.apellido.label }}</label>
+                        {{ form.apellido }}
+                        {% for error in form.apellido.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-3">
+                        <label for="{{ form.fecha_nacimiento.id_for_label }}" class="form-label fw-bold">{{ form.fecha_nacimiento.label }}</label>
+                        {{ form.fecha_nacimiento }}
+                        {% for error in form.fecha_nacimiento.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.sala_nivel.id_for_label }}" class="form-label fw-bold">{{ form.sala_nivel.label }}</label>
+                        {{ form.sala_nivel }}
+                        {% for error in form.sala_nivel.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.estado_actual.id_for_label }}" class="form-label fw-bold">{{ form.estado_actual.label }}</label>
+                        {{ form.estado_actual }}
+                        {% for error in form.estado_actual.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.foto.id_for_label }}" class="form-label fw-bold">{{ form.foto.label }}</label>
+                        {{ form.foto }}
+                        {% for error in form.foto.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                        <div class="form-text">Recomendada: se muestra en recepción al validar el retiro.</div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="d-flex align-items-end gap-3">
+                            {% if parvulo.foto %}
+                                <div>
+                                    <div class="text-muted small mb-1">Foto actual</div>
+                                    <img src="{{ parvulo.foto.url }}" alt="Foto actual" class="rounded border" style="max-height: 110px;">
+                                </div>
+                            {% endif %}
+                            <div>
+                                <div class="text-muted small mb-1">Nueva foto</div>
+                                <img id="fotoPreview" src="#" alt="Vista previa" class="rounded border d-none" style="max-height: 110px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <h5 class="fw-bold mb-3"><i class="bi bi-heart-pulse text-danger me-2"></i>Salud / Alergias</h5>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label for="{{ form.detalles_medicos.id_for_label }}" class="form-label fw-bold">{{ form.detalles_medicos.label }}</label>
+                        {{ form.detalles_medicos }}
+                        {% for error in form.detalles_medicos.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <h5 class="fw-bold mb-3"><i class="bi bi-person-badge text-primary me-2"></i>Titular y autorizados</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="{{ form.apoderado_titular.id_for_label }}" class="form-label fw-bold">{{ form.apoderado_titular.label }}</label>
+                        {{ form.apoderado_titular }}
+                        {% for error in form.apoderado_titular.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                        <div class="form-text">Cada párvulo debe tener un único titular principal.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.terceros_autorizados.id_for_label }}" class="form-label fw-bold">{{ form.terceros_autorizados.label }}</label>
+                        {{ form.terceros_autorizados }}
+                        {% for error in form.terceros_autorizados.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                        <div class="form-text">Mantén presionado Ctrl para seleccionar más de uno.</div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <h5 class="fw-bold mb-3"><i class="bi bi-telephone-fill text-success me-2"></i>Contacto de emergencia</h5>
+                <div class="row g-3">
+                    <div class="col-md-5">
+                        <label for="{{ form.contacto_emergencia_nombre.id_for_label }}" class="form-label fw-bold">{{ form.contacto_emergencia_nombre.label }}</label>
+                        {{ form.contacto_emergencia_nombre }}
+                        {% for error in form.contacto_emergencia_nombre.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.contacto_emergencia_telefono.id_for_label }}" class="form-label fw-bold">{{ form.contacto_emergencia_telefono.label }}</label>
+                        {{ form.contacto_emergencia_telefono }}
+                        {% for error in form.contacto_emergencia_telefono.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-3">
+                        <label for="{{ form.contacto_emergencia_parentesco.id_for_label }}" class="form-label fw-bold">{{ form.contacto_emergencia_parentesco.label }}</label>
+                        {{ form.contacto_emergencia_parentesco }}
+                        {% for error in form.contacto_emergencia_parentesco.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+                <div class="form-text mt-2">
+                    Si dejas estos campos vacíos, se usarán los datos del titular principal.
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a href="{% url 'administrador:parvulos' %}" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle me-2"></i>
+                        {% if modo == 'crear' %}Crear párvulo{% else %}Guardar cambios{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function () {
+        const input = document.getElementById('{{ form.foto.id_for_label }}');
+        const preview = document.getElementById('fotoPreview');
+        if (!input || !preview) {
+            return;
+        }
+        input.addEventListener('change', function () {
+            const archivo = this.files && this.files[0];
+            if (!archivo) {
+                preview.classList.add('d-none');
+                return;
+            }
+            preview.src = URL.createObjectURL(archivo);
+            preview.classList.remove('d-none');
+        });
+    })();
+</script>
+{% endblock %}

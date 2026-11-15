@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Registro de Asistencia - GESPARVU{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-calendar-check text-primary me-2"></i>Marcaje de Asistencia</h2>
+        <a href="{% url 'recepcion:dashboard' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Volver al Dashboard
+        </a>
+    </div>
+
+    <!-- Formulario de Búsqueda y Marcaje por RUT -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-search me-2"></i>Escaneo / Ingreso de RUT</h5>
+        </div>
+        <div class="card-body p-4">
+            <form method="post" action="">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="rutInput" class="form-label fw-bold">RUT del Párvulo o Apoderado</label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text"><i class="bi bi-person-vcard"></i></span>
+                        <input type="text" class="form-control" id="rutInput" name="rut" placeholder="Ej: 25.432.109-8" autofocus required>
+                        <button class="btn btn-success px-4" type="submit">
+                            <i class="bi bi-check-circle me-1"></i> Marcar
+                        </button>
+                    </div>
+                    <div class="form-text mt-2">El cursor está listo para recibir la lectura del lector o la digitación manual.</div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla de Control de la Jornada Actual (Dinámica) -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-body border-0 pt-3">
+            <h5 class="fw-bold mb-0">Listado General de Hoy</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Párvulo</th>
+                            <th>Nivel</th>
+                            <th>Hora Ingreso</th>
+                            <th>Hora Salida</th>
+                            <th>Estado Actual</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reg in asistencias_hoy %}
+                        <tr>
+                            <td>{{ reg.parvulo.nombre }} {{ reg.parvulo.apellido }}</td>
+                            <td>{{ reg.parvulo.nivel.nombre }}</td>
+                            <td>{{ reg.hora_ingreso|time:"H:i A"|default:"--:--" }}</td>
+                            <td>{{ reg.hora_salida|time:"H:i A"|default:"--:--" }}</td>
+                            <td>
+                                {% if reg.hora_salida %}
+                                    <span class="badge bg-secondary">Retirado</span>
+                                {% else %}
+                                    <span class="badge bg-success">En Guardería</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">
+                                <i class="bi bi-info-circle fs-4 d-block mb-2"></i>
+                                No hay registros de asistencia realizados para el día de hoy.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
