@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}{% if modo == 'crear' %}Nuevo Usuario{% else %}Editar Usuario{% endif %} - GESPARVU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <div>
+            <h2 class="mb-1">
+                <i class="bi bi-person-{% if modo == 'crear' %}plus{% else %}gear{% endif %} text-primary me-2"></i>
+                {% if modo == 'crear' %}Nuevo Usuario{% else %}Editar Usuario{% endif %}
+            </h2>
+            <p class="text-muted mb-0">
+                {% if modo == 'crear' %}
+                    Registra una cuenta de apoderado, docente o recepción.
+                {% else %}
+                    Actualiza los datos de {{ usuario.get_full_name|default:usuario.username }}.
+                {% endif %}
+            </p>
+        </div>
+        <a href="{% url 'administrador:usuarios' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Volver al listado
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger py-2" role="alert">
+                    {% for error in form.non_field_errors %}
+                        <div><i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="{{ form.rut.id_for_label }}" class="form-label fw-bold">{{ form.rut.label }}</label>
+                        {{ form.rut }}
+                        {% for error in form.rut.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                        <div class="form-text">Se usará como nombre de usuario para iniciar sesión.</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.first_name.id_for_label }}" class="form-label fw-bold">{{ form.first_name.label }}</label>
+                        {{ form.first_name }}
+                        {% for error in form.first_name.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.last_name.id_for_label }}" class="form-label fw-bold">{{ form.last_name.label }}</label>
+                        {{ form.last_name }}
+                        {% for error in form.last_name.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+
+                    <div class="col-md-5">
+                        <label for="{{ form.email.id_for_label }}" class="form-label fw-bold">{{ form.email.label }}</label>
+                        {{ form.email }}
+                        {% for error in form.email.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.telefono.id_for_label }}" class="form-label fw-bold">{{ form.telefono.label }}</label>
+                        {{ form.telefono }}
+                        {% for error in form.telefono.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-3">
+                        <label for="{{ form.rol.id_for_label }}" class="form-label fw-bold">{{ form.rol.label }}</label>
+                        {{ form.rol }}
+                        {% for error in form.rol.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <h5 class="fw-bold mb-1">
+                    {% if modo == 'crear' %}Contraseña inicial{% else %}Cambiar contraseña{% endif %}
+                </h5>
+                <p class="text-muted small mb-3">
+                    {% if modo == 'crear' %}
+                        La contraseña debe tener al menos 8 caracteres e incluir mayúscula, minúscula, número y símbolo.
+                    {% else %}
+                        Deja ambos campos en blanco para conservar la contraseña actual.
+                    {% endif %}
+                </p>
+
+                <div class="row g-3 mb-2">
+                    <div class="col-md-6">
+                        <label for="{{ form.password1.id_for_label }}" class="form-label fw-bold">{{ form.password1.label }}</label>
+                        {{ form.password1 }}
+                        {% for error in form.password1.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.password2.id_for_label }}" class="form-label fw-bold">{{ form.password2.label }}</label>
+                        {{ form.password2 }}
+                        {% for error in form.password2.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+
+                {% include "administrador/_password_strength.html" with campo_id=form.password1.id_for_label %}
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a href="{% url 'administrador:usuarios' %}" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle me-2"></i>
+                        {% if modo == 'crear' %}Crear usuario{% else %}Guardar cambios{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

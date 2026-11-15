@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Recepción - GESPARVU{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-door-open text-primary me-2"></i>Panel de Recepción</h2>
+        <span class="badge bg-dark fs-6" id="clock">Control de Puerta</span>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <!-- Chat para informar retiros al docente -->
+        <div class="col-lg-6">
+            {% include "notificaciones/_chat.html" %}
+        </div>
+
+        <!-- Lector de QR -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-body border-0 pt-3 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-qr-code-scan me-2 text-primary"></i>Lector de QR</h5>
+                    <span class="badge bg-secondary" id="qrEstado">Detenido</span>
+                </div>
+                <div class="card-body">
+                    <div id="qr-reader" class="w-100 rounded overflow-hidden bg-body-tertiary" style="min-height: 240px;"></div>
+
+                    <div class="d-flex gap-2 mt-3">
+                        <button type="button" id="btnIniciarQr" class="btn btn-primary">
+                            <i class="bi bi-camera-video me-1"></i>Iniciar cámara
+                        </button>
+                        <button type="button" id="btnDetenerQr" class="btn btn-outline-secondary" disabled>
+                            <i class="bi bi-stop-circle me-1"></i>Detener
+                        </button>
+                    </div>
+
+                    <div id="qrResultado" class="mt-3"></div>
+
+                    {% csrf_token %}
+                    <p class="text-muted small mb-0 mt-2">
+                        Escanea el QR generado por el apoderado para validar su identidad y los párvulos autorizados.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumen Rápido de Movimientos (Dinámico) -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-body border-0 pt-3">
+            <h5 class="fw-bold mb-0"><i class="bi bi-list-check me-2 text-primary"></i>Últimos Movimientos de Hoy</h5>
+        </div>
+        <div class="card-body p-0">
+            <ul class="list-group list-group-flush">
+                {% for mov in ultimos_movimientos %}
+                <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                    <div>
+                        <strong>{{ mov.parvulo.nombre }}</strong> <span class="text-muted small">({{ mov.parvulo.nivel.nombre }})</span><br>
+                        <span class="text-secondary small">
+                            {% if mov.tipo == 'ENTRADA' %}
+                                Entregado por: {{ mov.adulto_responsable|default:"Apoderado" }}
+                            {% else %}
+                                Retirado por: {{ mov.adulto_responsable|default:"Apoderado" }}
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% if mov.tipo == 'ENTRADA' %}
+                        <span class="badge bg-success">Ingreso {{ mov.hora|time:"H:i" }}</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">Salida {{ mov.hora|time:"H:i" }}</span>
+                    {% endif %}
+                </li>
+                {% empty %}
+                <li class="list-group-item text-center text-muted py-4">
+                    <i class="bi bi-info-circle fs-4 d-block mb-2"></i>
+                    No hay registros de entrada o salida para el día de hoy.
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+(function () {
+    const botonIniciar = document.getElementById('btnIniciarQr');
+    const botonDetener = document.getElementById('btnDetenerQr');
+    const estado = document.getElementById('qrEstado');
+    const resultado = document.getElementById('qrResultado');
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const urlValidacion = "{% url 'recepcion:validar_qr' %}";
+
+    let lector = null;
+    let escaneando = false;
+    let procesando = false;
+
+    function mostrarAlerta(tipo, html) {
+        resultado.innerHTML = '<div class="alert alert-' + tipo + ' mb-0">' + html + '</div>';
+    }
+
+    function limpiarResultado() {
+        resultado.innerHTML = '';
+    }
+
+    function renderizarResultado(data) {
+        let html = '<div class="alert alert-success mb-2">';
+        html += '<i class="bi bi-check-circle-fill me-2"></i><strong>QR válido</strong><br>';
+        html += data.apoderado.nombre + ' · ' + data.apoderado.rut + ' (' + data.apoderado.tipo + ')';
+        html += '</div>';
+
+        if (data.parvulos.length === 0) {
+            html += '<div class="alert alert-warning mb-0">Este apoderado no tiene párvulos asociados.</div>';
+        } else {
+            html += '<ul class="list-group">';
+            data.parvulos.forEach(function (p) {
+                html += '<li class="list-group-item d-flex justify-content-between align-items-center">';
+                html += '<div><strong>' + p.nombre + '</strong><br><span class="text-muted small">' + p.nivel + ' · ' + p.rut + '</span></div>';
+                html += '<span class="badge bg-info text-dark">' + p.estado + '</span>';
+                html += '</li>';
+            });
+            html += '</ul>';
+        }
+
+        html += '<div class="text-muted small mt-2">QR válido hasta ' + data.expira + '</div>';
+        resultado.innerHTML = html;
+    }
+
+    async function detenerEscaner() {
+        if (lector && escaneando) {
+            try {
+                await lector.stop();
+                await lector.clear();
+            } catch (e) {
+                console.error('No se pudo detener el lector', e);
+            }
+        }
+        escaneando = false;
+        botonIniciar.disabled = false;
+        botonDetener.disabled = true;
+        estado.textContent = 'Detenido';
+        estado.className = 'badge bg-secondary';
+    }
+
+    async function enviarToken(token) {
+        if (!token) {
+            return;
+        }
+        mostrarAlerta('secondary', '<span class="spinner-border spinner-border-sm me-2"></span>Validando código...');
+        try {
+            const respuesta = await fetch(urlValidacion, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+                body: JSON.stringify({ token: token }),
+            });
+            const data = await respuesta.json();
+            if (data.valido) {
+                renderizarResultado(data);
+            } else {
+                mostrarAlerta('danger', '<i class="bi bi-x-circle-fill me-2"></i>' + (data.error || 'QR no válido.'));
+            }
+        } catch (e) {
+            mostrarAlerta('danger', '<i class="bi bi-x-circle-fill me-2"></i>Error al validar el código. Intenta nuevamente.');
+        } finally {
+            procesando = false;
+        }
+    }
+
+    async function alEscanear(texto) {
+        if (procesando) {
+            return;
+        }
+        procesando = true;
+        await detenerEscaner();
+        await enviarToken(texto);
+    }
+
+    async function iniciarEscaner() {
+        limpiarResultado();
+        if (!lector) {
+            lector = new Html5Qrcode('qr-reader');
+        }
+
+        botonIniciar.disabled = true;
+        estado.textContent = 'Iniciando...';
+        estado.className = 'badge bg-warning text-dark';
+
+        try {
+            await lector.start(
+                { facingMode: 'environment' },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                alEscanear
+            );
+            escaneando = true;
+            botonDetener.disabled = false;
+            estado.textContent = 'Escaneando';
+            estado.className = 'badge bg-success';
+        } catch (e) {
+            botonIniciar.disabled = false;
+            estado.textContent = 'Error';
+            estado.className = 'badge bg-danger';
+            mostrarAlerta('danger', '<i class="bi bi-camera-video-off me-2"></i>No se pudo acceder a la cámara. Verifica los permisos del navegador.');
+        }
+    }
+
+    botonIniciar.addEventListener('click', iniciarEscaner);
+    botonDetener.addEventListener('click', detenerEscaner);
+
+    window.addEventListener('beforeunload', function () {
+        if (lector && escaneando) {
+            lector.stop().catch(function () {});
+        }
+    });
+})();
+</script>
+{% endblock %}

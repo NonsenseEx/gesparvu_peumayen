@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Mi Código QR - GESPARVU{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 720px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="bi bi-qr-code text-primary me-2"></i>Mi Código QR</h2>
+            <p class="text-muted mb-0">Presenta este código en recepción para validar el retiro.</p>
+        </div>
+        <a href="{% url 'apoderado:dashboard' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Volver
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body text-center p-4">
+            <h5 class="fw-bold mb-1">{{ apoderado.nombres }} {{ apoderado.apellidos }}</h5>
+            <p class="text-muted">{{ apoderado.rut }}</p>
+
+            <div class="d-inline-block bg-white p-3 rounded border my-3">
+                <img src="data:image/png;base64,{{ qr_base64 }}"
+                     alt="Código QR del apoderado"
+                     class="img-fluid"
+                     style="width: 280px; height: 280px;">
+            </div>
+
+            <p class="mb-1">
+                <span class="badge bg-success fs-6" id="estadoQr">Vigente</span>
+            </p>
+            <p class="text-muted small mb-4">
+                Expira el {{ expira|date:"d/m/Y" }} a las {{ expira|time:"H:i" }}.
+                El código es personal y de un solo uso.
+            </p>
+
+            <div class="d-flex justify-content-center gap-2">
+                <a href="{% url 'apoderado:generar_qr' %}" class="btn btn-primary">
+                    <i class="bi bi-arrow-repeat me-2"></i>Regenerar QR
+                </a>
+                <a href="{% url 'apoderado:dashboard' %}" class="btn btn-outline-secondary">
+                    Ir al Portal
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-info mt-4">
+        <i class="bi bi-shield-check me-2"></i>
+        Por seguridad, este QR deja de ser válido después de la fecha indicada o cuando generes uno nuevo.
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    const expira = new Date('{{ expira|date:"c" }}').getTime();
+    const badge = document.getElementById('estadoQr');
+
+    function actualizar() {
+        if (Date.now() >= expira) {
+            badge.textContent = 'Vencido';
+            badge.className = 'badge bg-danger fs-6';
+            clearInterval(intervalo);
+        }
+    }
+
+    const intervalo = setInterval(actualizar, 1000);
+    actualizar();
+})();
+</script>
+{% endblock %}
