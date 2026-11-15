@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Sala de descanso (imagen referencial)">
-  <rect width="800" height="600" fill="#f3ecff"/>
-  <rect x="90" y="160" width="290" height="170" rx="20" fill="#8b5cf6" opacity="0.85"/>
-  <rect x="420" y="160" width="290" height="170" rx="20" fill="#b79cff"/>
-  <rect x="90" y="360" width="620" height="90" rx="20" fill="#ddd0ff"/>
-  <text x="400" y="560" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="700" fill="#5b21b6">Sala de descanso</text>
-  <text x="400" y="300" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="26" fill="#ffffff">Imagen referencial</text>
-</svg>
